@@ -31,7 +31,7 @@ public class UserService {
     }
 
     // 问题5: 资源未关闭 + 路径遍历
-    public String readFile(String fileName) {
+    public String readFiles(String fileName) {
         try {
             FileReader reader = new FileReader(new File("/home/data/" + fileName));
             char[] buffer = new char[1024];
@@ -62,9 +62,7 @@ public class UserService {
         return "C";
     }
 
-    // 问题9: 参数过多
-    public void createUser(String name, String email, String phone,
-                           String address, String city, String country) {
+    public void createUser(String name, String email) {
         System.out.println("创建用户");
     }
 

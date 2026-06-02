@@ -2,8 +2,6 @@ package com.yekobird.aicodereview.service;
 
 import java.sql.Connection;
 import java.sql.Statement;
-import java.io.File;
-import java.io.FileReader;
 
 /**
  * 用户服务（故意写了很多问题用来测试审查）

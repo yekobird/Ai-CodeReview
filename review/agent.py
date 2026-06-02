@@ -40,16 +40,16 @@ def is_review_enabled() -> bool:
 def get_git_diff() -> str:
     """获取最近一次提交的 diff"""
     try:
-        # 获取 HEAD 的 diff
         result = subprocess.run(
             ["git", "diff", "HEAD~1", "HEAD", "--unified=3"],
-            capture_output=True, text=True, cwd=PROJECT_ROOT
+            capture_output=True, text=True, cwd=PROJECT_ROOT,
+            encoding='utf-8', errors='ignore'  # 加这行
         )
         if result.returncode != 0:
-            # 可能是首次提交，只获取本次变更
             result = subprocess.run(
                 ["git", "diff", "--cached", "--unified=3"],
-                capture_output=True, text=True, cwd=PROJECT_ROOT
+                capture_output=True, text=True, cwd=PROJECT_ROOT,
+                encoding='utf-8', errors='ignore'  # 加这行
             )
         return result.stdout
     except Exception as e:
@@ -61,12 +61,14 @@ def get_changed_files() -> list:
     """获取变更的文件列表"""
     result = subprocess.run(
         ["git", "diff", "--name-only", "HEAD~1", "HEAD"],
-        capture_output=True, text=True, cwd=PROJECT_ROOT
+        capture_output=True, text=True, cwd=PROJECT_ROOT,
+        encoding='utf-8', errors='ignore'  # 加这行
     )
     if result.returncode != 0:
         result = subprocess.run(
             ["git", "diff", "--cached", "--name-only"],
-            capture_output=True, text=True, cwd=PROJECT_ROOT
+            capture_output=True, text=True, cwd=PROJECT_ROOT,
+            encoding='utf-8', errors='ignore'  # 加这行
         )
     return [f for f in result.stdout.strip().split('\n') if f]
 

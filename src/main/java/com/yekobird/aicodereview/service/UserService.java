@@ -16,7 +16,7 @@ public class UserService {
     private String dbPassword = "admin123456";
 
     // 问题3: SQL注入
-    public void getUserById(String userId) {
+    public void getUserByIds(String userId) {
         String sql = "SELECT * FROM users WHERE id = " + userId;
         try {
             Statement stmt = connection.createStatement();

@@ -13,6 +13,8 @@ public class UserService {
     // 问题1: 硬编码密码
     private String dbPassword = "admin123456";
 
+    private String password = "123456";
+
     // 问题3: SQL注入
     public void getUserByIds(String userId) {
         String sql = "SELECT * FROM users WHERE id = " + userId;

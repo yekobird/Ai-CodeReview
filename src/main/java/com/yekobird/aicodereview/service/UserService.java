@@ -15,10 +15,6 @@ public class UserService {
     // 问题1: 硬编码密码
     private String dbPassword = "admin123456";
 
-    public UserService() {
-        // 问题2: 类名应该是大驼峰，这里故意写错
-    }
-
     // 问题3: SQL注入
     public void getUserById(String userId) {
         String sql = "SELECT * FROM users WHERE id = " + userId;

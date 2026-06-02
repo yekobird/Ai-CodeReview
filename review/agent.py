@@ -139,54 +139,79 @@ def generate_report(result):
     stats = result["stats"]
     issues = result["issues"]
     files = result["files"]
+    timestamp = result["timestamp"]
 
-    groups = {"blocker": [], "major": [], "minor": [], "info": []}
-    for issue in issues:
-        groups[issue["level"]].append(issue)
+    # 评分颜色
+    score = stats["score"]
+    if score >= 8:
+        score_emoji = "🟢"
+    elif score >= 5:
+        score_emoji = "🟡"
+    else:
+        score_emoji = "🔴"
 
-    report = f"""# 代码审查报告
+    report = f"""# 🔍 代码审查报告
 
-**时间：** {result['timestamp']}
-**文件：** {len(files)} 个
-**问题：** {stats['total']} 个
+> **时间：** {timestamp}
+> **文件：** {len(files)} 个
+> **问题：** {stats['total']} 个
 
-## 评分：{stats['score']}/10
+## {score_emoji} 总评分：{score}/10
 
-| 级别 | 数量 |
-|------|:--:|
-| 阻断 | {stats['blocker']} |
-| 严重 | {stats['major']} |
-| 警告 | {stats['minor']} |
-| 建议 | {stats['info']} |
+| 🔴 阻断 | 🟠 严重 | 🟡 警告 | 🟢 建议 |
+|:--:|:--:|:--:|:--:|
+| {stats['blocker']} | {stats['major']} | {stats['minor']} | {stats['info']} |
+
+---
+
+## 📁 变更文件
 
 """
     for f in files:
         report += f"- `{f}`\n"
 
+    report += "\n---\n"
+
     if not issues:
         if result.get("empty"):
-            report += "\n## 本次提交无代码变更\n"
+            report += "\n### ℹ️ 本次提交无新增代码变更\n"
         else:
-            report += "\n## 未发现问题\n"
-        report += f"\n---\n*审查规则: {len(RULES)} 条*"
+            report += "\n### ✅ 恭喜！未发现任何问题\n"
+        report += f"\n> 审查规则: {len(RULES)} 条 | 自动生成于 {timestamp}"
         return report
 
-    level_names = [
-        ("blocker", "阻断问题"),
-        ("major", "严重问题"),
-        ("minor", "警告"),
-        ("info", "建议"),
+    level_config = [
+        ("blocker", "🔴 阻断问题（必须修复）"),
+        ("major", "🟠 严重问题（强烈建议修复）"),
+        ("minor", "🟡 警告（建议优化）"),
+        ("info", "🟢 建议（可后续改进）"),
     ]
 
-    for level, title in level_names:
-        if groups[level]:
-            report += f"\n## {title}\n\n"
-            report += "| 规则 | 行 | 问题 | 建议 |\n"
-            report += "|------|:--:|------|------|\n"
-            for issue in groups[level]:
-                report += f"| {issue['rule_id']} | {issue['line']} | {issue['description']} | {issue['suggestion']} |\n"
+    groups = {"blocker": [], "major": [], "minor": [], "info": []}
+    for issue in issues:
+        groups[issue["level"]].append(issue)
 
-    report += f"\n---\n*审查规则: {len(RULES)} 条*"
+    for level, title in level_config:
+        if groups[level]:
+            report += f"## {title}\n\n"
+            report += "| 规则ID | 行号 | 问题描述 | 修复建议 |\n"
+            report += "|:--|:--:|------|------|\n"
+            for issue in groups[level]:
+                report += f"| `{issue['rule_id']}` | {issue['line']} | {issue['description']} | {issue['suggestion']} |\n"
+            report += "\n"
+
+    # 问题分布图
+    report += "---\n\n"
+    report += "## 📈 问题分布\n\n"
+    report += "```\n"
+    report += f"阻断: {'█' * stats['blocker']}{'░' * (5 - min(stats['blocker'], 5))} {stats['blocker']}\n"
+    report += f"严重: {'█' * stats['major']}{'░' * (5 - min(stats['major'], 5))} {stats['major']}\n"
+    report += f"警告: {'█' * stats['minor']}{'░' * (5 - min(stats['minor'], 5))} {stats['minor']}\n"
+    report += f"建议: {'█' * stats['info']}{'░' * (5 - min(stats['info'], 5))} {stats['info']}\n"
+    report += "```\n"
+
+    report += f"\n> 📋 审查规则: {len(RULES)} 条 | ⏱️ 自动生成于 {timestamp}"
+
     return report
 
 
